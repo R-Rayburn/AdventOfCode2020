@@ -1,0 +1,90 @@
+from collections import deque
+
+with open('data.txt', 'r') as f: rules = f.read().replace('\n', '')
+
+rules = [ r for r in rules.split('.') if r]
+
+no_bag_context = 'no other bags'
+
+searched_bags = []
+bags_that_hold_shiny_gold = []
+
+def format_inner_bag(bag):
+    amount, adj, color = bag.split(' ')
+    return (adj + ' ' + color, int(amount))
+    
+
+# Refactor to check for contain no bags
+def format_inner_bags(bags):
+    if no_bag_context in bags:
+        return {}
+    bags = [x.strip() for x in bags.split(',')]
+    bags = [x.replace('bags', '').replace('bag', '').strip() for x in bags]
+    formatted_bags = {}
+    for bag in bags:
+        if bag:
+            color, amount = format_inner_bag(bag)
+            formatted_bags[color] = amount
+    #bags = [format_inner_bag(x) for x in bags if x]
+    #print(bags)
+    return formatted_bags
+
+def create_rules(rules):
+    rules_graph = {}
+    for rule in rules:
+        outer_bag, inner_bags = rule.split(' bags contain ')
+        inner_bags = format_inner_bags(inner_bags)
+        rules_graph[outer_bag] = inner_bags
+    return rules_graph
+#    print(outer_bag)
+#    rules_list.append({'outer_bag': outer_bag, 'inner_bags': inner_bags})
+contains_shiny = []
+#def find_gold_bag(queue, graph):
+#    print(queue)
+#    if queue:
+#        bag = queue.popleft()
+#        if 'shiny gold' in [x['bag'] for x in graph[bag]]:
+#            contains_shiny.append(bag)
+#        else:
+#            queue += [x['bag'] for x in graph[bag] if x['bag'] not in searched_bags]
+#            searched_bags.append(bag)
+    #return find_gold_bag(queue, graph) + 1
+
+rules_graph = create_rules(rules)
+
+queue = deque()
+bags_to_search = []
+#queue += [x['bag'] for x in rules_graph[rules_graph.keys()[0]]]
+#find_gold_bag(queue, rules_graph)
+#print(rules_graph)
+
+queue += ['shiny gold']
+total_inner_bags = 0
+
+def find_prod(inner, outer):
+    prod = 0
+    if len(inner) == 0:
+        return 0
+    else:
+        for i in inner:
+            prod += rules_graph[outer][i] + (rules_graph[outer][i] * find_prod(rules_graph[i].keys() ,i))
+    print(inner)
+    print(outer)
+    print(prod)
+    return prod
+
+#while queue:
+bag_to_search = queue.popleft()
+inner_bags = rules_graph[bag_to_search].keys()
+#print(inner_bags)
+total_inner_bags = find_prod(inner_bags, bag_to_search)
+#for bag in inner_bags:
+#    bag_amount = rules_graph[bag_to_search][bag]
+#    total_inner_bags += bag_amount + (bag_amount * find_prod(rules_graph[bag].keys(), bag))
+#queue += inner_bags
+#            if bag_to_search in ib:        
+#                contains_shiny.append(key)
+#                searched_bags.append(key)
+#                queue += [key]
+
+print(total_inner_bags)
