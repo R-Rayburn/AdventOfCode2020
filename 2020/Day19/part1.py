@@ -14,11 +14,8 @@ for rule in rules:
 regex = ' ' + format_rules['0'] + ' '
 while any(c.isdigit() for c in regex):
     new_regex = regex
-    print(regex)
     for i in [x for x in re.split('[\\s()|^$]', regex[:]) if x]:
         if i in format_rules:
-            # print(' {} '.format(i))
-            # print(' ({}) '.format(format_rules[i]))
             new_regex = new_regex.replace(' {} '.format(i), ' ( {} ) '.format(format_rules[i]))
     regex = new_regex
 
@@ -26,5 +23,4 @@ count = 0
 for message in messages:
     if re.fullmatch('^{}$'.format(regex.replace(' ', '')), message):
         count += 1
-        print(message)
 print(count)
