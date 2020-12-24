@@ -32,3 +32,26 @@ test_result = play_part_1(test_data[:], 1)
 result = play_part_1(data[:], 1)
 print_part_1(test_result)
 print_part_1(result)
+
+
+def play_part_2(current):
+    for _ in range(10_000_000):
+        picked = [cups[current], cups[cups[current]], cups[cups[cups[current]]]]
+        cups[current] = cups[picked[-1]]
+        destination = (current - 1) if current > 1 else max(cups)
+        while destination in picked:
+            destination = (destination - 1) if destination > 1 else max(cups)
+        cups[picked[-1]] = cups[destination]
+        cups[destination] = picked[0]
+        current = cups[current]
+    print(cups[1] * cups[cups[1]])
+
+
+cups = {}
+data_2 = data[:] + list(range(max(data) + 1, 1_000_001))
+for i in range(len(data_2)):
+    if i == len(data_2) - 1:
+        cups[data_2[i]] = data_2[0]
+    else:
+        cups[data_2[i]] = data_2[i+1]
+play_part_2(data_2[0])
