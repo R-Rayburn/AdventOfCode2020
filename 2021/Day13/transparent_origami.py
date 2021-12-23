@@ -43,16 +43,29 @@ def fold_board(board, instructions):
     if direction == 'y':
         top_board = board[:line]
         bottom_board = board[line+1:]
+
+        if len(top_board) < len(bottom_board):
+            top_board = [['.' for _ in range(len(top_board[0]))]
+                         for _ in range(len(bottom_board)-len(top_board))] + top_board
+        elif len(top_board) > len(bottom_board):
+            bottom_board = bottom_board + [['.' for _ in range(len(top_board[0]))]
+                                           for _ in range(len(top_board)-len(bottom_board))]
+
         for i in range(len(top_board)):
             row = top_board[i]
             for j in range(len(top_board[i])):
                 if bottom_board[-i-1][j] == '#':
                     row[j] = '#'
             new_board.append(row)
-    # Need to add logic for even size boards
     elif direction == 'x':
         left_board = [row[:line] for row in board]
-        right_board = [row[line+1:] if len(row)%2==0 else row[line:] for row in board]
+        right_board = [row[line+1:] for row in board]
+        if len(left_board[0]) < len(right_board[0]):
+            for i in range(len(left_board)):
+                left_board[i] = ['.' for _ in range(len(right_board[i]-len(left_board[i])))] + left_board[i]
+        elif len(left_board[0]) > len(right_board[0]):
+            for i in range(len(right_board)):
+                right_board[i] = right_board[i] + ['.' for _ in range(len(left_board[i])-len(right_board[i]))]
         for i in range(len(left_board)):
             row = left_board[i]
             for j in range(len(left_board[i])):
@@ -69,7 +82,6 @@ def count_visible_dots(board):
 def fold_one(puzzle):
     coordinates, instructions = get_coordinates_and_instructions(puzzle)
     board = pin_coordinates(coordinates)
-    print(len(board[0]))
     board = fold_board(board, instructions[0])
     visible_dot_count = count_visible_dots(board)
     return visible_dot_count
@@ -80,6 +92,15 @@ print(f'Test: {fold_one(test_puzzle_input)}')
 print(f'Data: {fold_one(puzzle_input)}')
 
 
-# print('Part 2')
-# print(f'Test: {get_path_count_p2(test_one_cave_map)}')
-# print(f'Data: {get_path_count_p2(cave_map)}')
+def fold_all(puzzle):
+    coordinates, instructions = get_coordinates_and_instructions(puzzle)
+    board = pin_coordinates(coordinates)
+    for instruction in instructions:
+        board = fold_board(board, instruction)
+    print_board(board)
+    return count_visible_dots(board)
+
+
+print('Part 2')
+print(f'Test: {fold_all(test_puzzle_input)}')
+print(f'Data: {fold_all(puzzle_input)}')
