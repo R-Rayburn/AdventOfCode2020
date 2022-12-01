@@ -66,6 +66,7 @@ def increment_password(password):
     
 
 def retrieve_new_password(current_password):
+    current_password = increment_password(current_password)
     while not meets_requirements(current_password):
         current_password = increment_password(current_password)
     return current_password
@@ -77,4 +78,4 @@ print(f'Test 2: {retrieve_new_password("ghijklmn")}')
 print(f'Data: {retrieve_new_password("cqjxjnds")}')
 
 print('Part 2')
-# # print(f'Data: {retrieve_new_password("1113122113", 50)}')
+print(f'Data: {retrieve_new_password("cqjxxyzz")}')
