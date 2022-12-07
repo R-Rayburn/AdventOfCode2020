@@ -15,14 +15,13 @@ class CameraTile:
         self.right = None
 
     def rotate(self):
-        self.tile = list(zip(*self.tile[::-1]))
+        self.tile = [''.join(x) for x in list(zip(*self.tile[::-1]))]
 
     def flip(self):
         self.tile = [x[::-1] for x in self.tile]
 
     def vertical_flip(self):
         self.tile = self.tile[::-1]
-
 
     def get_tile_edges(self):
         edges = [self.tile[0], self.tile[-1]]
@@ -32,6 +31,9 @@ class CameraTile:
 
     def add_neighbor(self, neighbor):
         self.neighbors.append(neighbor)
+
+    # def has_set_neighbors(self):
+    #     return sum(1 for x in [self.top, self.bottom, self.left, self.right] is x is not None) == len(self.neighbors)
 
     def __str__(self):
         return f'{self.id}\n' + '\n'.join(self.tile) + f'neighbors: {self.neighbors}'
@@ -59,226 +61,249 @@ print(corner_product)
 
 
 mapped_tiles = []
-
+re_arranged_tiles = []
 
 def map_neighbors(tile: CameraTile):
-    mapped_tiles.append(tile.id)
-    for neighbor_id in tile.neighbors:
-        neighbor: CameraTile = [x for x in camera_tiles if x.id == neighbor_id][0]
-        if neighbor.id not in mapped_tiles:
-            grid = tile.tile
-            if tile.top is None:
-                # top = top
-                if grid[0] == neighbor.tile[0]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.flip()
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id
-                # top = bottom
-                elif grid[0] == neighbor.tile[-1]:
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id
-                # top = top flipped
-                elif grid[0] == neighbor.tile[0][::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id
-                # top = bottom flipped
-                elif grid[0] == neighbor.tile[-1][::-1]:
-                    neighbor.flip()
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id
-                # top = left
-                elif grid[0] == ''.join(r[0] for r in neighbor.tile):
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id
-                # top = left flipped
-                elif grid[0] == ''.join(r[0] for r in neighbor.tile)[::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.flip()
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id            
-                # top = right
-                elif grid[0] == ''.join(r[-1] for r in neighbor.tile):
-                    neighbor.rotate()
-                    neighbor.flip()
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id
-                # top = right flipped
-                elif grid[0] == ''.join(r[-1] for r in neighbor.tile)[::-1]:
-                    neighbor.rotate()
-                    tile.top = neighbor.id
-                    neighbor.bottom = tile.id
-                map_neighbors(neighbor)
-            if tile.bottom is None:
-                # bottom = top
-                if grid[-1] == neighbor.tile[0]:
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id
-                # bottom = bottom
-                elif grid[-1] == neighbor.tile[-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.flip()
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id
-                # bottom = top flipped
-                elif grid[-1] == neighbor.tile[0][::-1]:
-                    neighbor.flip()
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id
-                # bottom = bottom flipped
-                elif grid[-1] == neighbor.tile[-1][::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id
-                # bottom = left
-                elif grid[-1] == ''.join(r[0] for r in neighbor.tile):
-                    neighbor.rotate()
-                    neighbor.flip()
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id
-                # bottom = left flipped
-                elif grid[-1] == ''.join(r[0] for r in neighbor.tile)[::-1]:
-                    neighbor.rotate()
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id            
-                # bottom = right
-                elif grid[-1] == ''.join(r[-1] for r in neighbor.tile):
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id
-                # bottom = right flipped
-                elif grid[-1] == ''.join(r[-1] for r in neighbor.tile)[::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.flip()
-                    tile.bottom = neighbor.id
-                    neighbor.top = tile.id
-                map_neighbors(neighbor)
-            if tile.left is None:
-                tile_left_column = ''.join(r[0] for r in grid)
-                # left = top
-                if tile_left_column == neighbor.tile[0]:
-                    neighbor.rotate()
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id
-                # left = bottom
-                elif tile_left_column == neighbor.tile[-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.vertical_flip()
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id
-                # left = top flipped
-                elif tile_left_column == neighbor.tile[0][::-1]:
-                    neighbor.rotate()
-                    neighbor.vertical_flip()
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id
-                # left = bottom flipped
-                elif tile_left_column == neighbor.tile[-1][::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id
-                # left = left
-                elif tile_left_column == ''.join(r[0] for r in neighbor.tile):
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.vertical_flip()
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id
-                # left = left flipped
-                elif tile_left_column == ''.join(r[0] for r in neighbor.tile)[::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id            
-                # left = right
-                elif tile_left_column == ''.join(r[-1] for r in neighbor.tile):
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id
-                # left = right flipped
-                elif tile_left_column == ''.join(r[-1] for r in neighbor.tile)[::-1]:
-                    neighbor.vertical_flip()
-                    tile.left = neighbor.id
-                    neighbor.right = tile.id
-                map_neighbors(neighbor)
-            if tile.right is None:
-                tile_right_column = ''.join(r[-1] for r in grid)
-                # right = top
-                if tile_right_column == neighbor.tile[0]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.vertical_flip()
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id
-                # right = bottom
-                elif tile_right_column == neighbor.tile[-1]:
-                    neighbor.rotate()
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id
-                # right = top flipped
-                elif tile_right_column == neighbor.tile[0][::-1]:
-                    neighbor.rotate()
-                    neighbor.vertical_flip()
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id
-                # right = bottom flipped
-                elif tile_right_column == neighbor.tile[-1][::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id
-                # right = left
-                elif tile_right_column == ''.join(r[0] for r in neighbor.tile):
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id
-                # right = left flipped
-                elif tile_right_column == ''.join(r[0] for r in neighbor.tile)[::-1]:
-                    neighbor.vertical_flip()
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id            
-                # right = right
-                elif tile_right_column == ''.join(r[-1] for r in neighbor.tile):
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    neighbor.vertical_flip()
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id
-                # right = right flipped
-                elif tile_right_column == ''.join(r[-1] for r in neighbor.tile)[::-1]:
-                    neighbor.rotate()
-                    neighbor.rotate()
-                    tile.right = neighbor.id
-                    neighbor.left = tile.id
-                map_neighbors(neighbor)
-            mapped_tiles.append(neighbor.id)
+    # mapped_tiles.append(tile.id)
+    re_arranged_tiles.append(tile.id)
+    # for neighbor_id in tile.neighbors:
+    if len(tile.neighbors) == 0:
+        return
+    neighbor_id = tile.neighbors.pop()
+    neighbor: CameraTile = [x for x in camera_tiles if x.id == neighbor_id][0]
+    # if neighbor.id not in mapped_tiles:
+    grid = tile.tile
+    if neighbor_id in re_arranged_tiles:
+        return
+
+    # if grid[0] == neighbor[0]:
+        # neighbor.rotate()
+        # neighbor.rotate()
+        # neighbor.flip()
+        # tile.top = neighbor.id
+        # neighbor.bottom = grid.id
+
+    if tile.top is None:
+        # top = top
+        if grid[0] == neighbor.tile[0]:
+                neighbor.rotate()
+                neighbor.rotate()
+                neighbor.flip()
+                tile.top = neighbor.id
+                neighbor.bottom = tile.id
+        # top = bottom
+        elif grid[0] == neighbor.tile[-1]:
+                tile.top = neighbor.id
+                neighbor.bottom = tile.id
+        # top = top flipped
+        elif grid[0] == neighbor.tile[0][::-1]:
+                neighbor.rotate()
+                neighbor.rotate()
+                tile.top = neighbor.id
+                neighbor.bottom = tile.id
+        # top = bottom flipped
+        elif grid[0] == neighbor.tile[-1][::-1]:
+                neighbor.flip()
+                tile.top = neighbor.id
+                neighbor.bottom = tile.id
+        # top = left
+        elif grid[0] == ''.join(r[0] for r in neighbor.tile):
+                neighbor.rotate()
+                neighbor.rotate()
+                neighbor.rotate()
+                tile.top = neighbor.id
+                neighbor.bottom = tile.id
+        # top = left flipped
+        elif grid[0] == ''.join(r[0] for r in neighbor.tile)[::-1]:
+                neighbor.rotate()
+                neighbor.rotate()
+                neighbor.rotate()
+                neighbor.flip()
+                tile.top = neighbor.id
+                neighbor.bottom = tile.id            
+        # top = right
+        elif grid[0] == ''.join(r[-1] for r in neighbor.tile):
+            neighbor.rotate()
+            neighbor.flip()
+            tile.top = neighbor.id
+            neighbor.bottom = tile.id
+        # top = right flipped
+        elif grid[0] == ''.join(r[-1] for r in neighbor.tile)[::-1]:
+            neighbor.rotate()
+            tile.top = neighbor.id
+            neighbor.bottom = tile.id
+        # map_neighbors(neighbor)
+    if tile.bottom is None:
+        # bottom = top
+        if grid[-1] == neighbor.tile[0]:
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id
+        # bottom = bottom
+        elif grid[-1] == neighbor.tile[-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.flip()
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id
+        # bottom = top flipped
+        elif grid[-1] == neighbor.tile[0][::-1]:
+            neighbor.flip()
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id
+        # bottom = bottom flipped
+        elif grid[-1] == neighbor.tile[-1][::-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id
+        # bottom = left
+        elif grid[-1] == ''.join(r[0] for r in neighbor.tile):
+            neighbor.rotate()
+            neighbor.flip()
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id
+        # bottom = left flipped
+        elif grid[-1] == ''.join(r[0] for r in neighbor.tile)[::-1]:
+            neighbor.rotate()
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id            
+        # bottom = right
+        elif grid[-1] == ''.join(r[-1] for r in neighbor.tile):
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.rotate()
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id
+        # bottom = right flipped
+        elif grid[-1] == ''.join(r[-1] for r in neighbor.tile)[::-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.flip()
+            tile.bottom = neighbor.id
+            neighbor.top = tile.id
+        # map_neighbors(neighbor)
+    if tile.left is None:
+        tile_left_column = ''.join(r[0] for r in grid)
+        # left = top
+        if tile_left_column == neighbor.tile[0]:
+            neighbor.rotate()
+            tile.left = neighbor.id
+            neighbor.right = tile.id
+        # left = bottom
+        elif tile_left_column == neighbor.tile[-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.vertical_flip()
+            tile.left = neighbor.id
+            neighbor.right = tile.id
+        # left = top flipped
+        elif tile_left_column == neighbor.tile[0][::-1]:
+            neighbor.rotate()
+            neighbor.vertical_flip()
+            tile.left = neighbor.id
+            neighbor.right = tile.id
+        # left = bottom flipped
+        elif tile_left_column == neighbor.tile[-1][::-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.rotate()
+            tile.left = neighbor.id
+            neighbor.right = tile.id
+        # left = left
+        elif tile_left_column == ''.join(r[0] for r in neighbor.tile):
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.vertical_flip()
+            tile.left = neighbor.id
+            neighbor.right = tile.id
+        # left = left flipped
+        elif tile_left_column == ''.join(r[0] for r in neighbor.tile)[::-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            tile.left = neighbor.id
+            neighbor.right = tile.id            
+        # left = right
+        elif tile_left_column == ''.join(r[-1] for r in neighbor.tile):
+            tile.left = neighbor.id
+            neighbor.right = tile.id
+        # left = right flipped
+        elif tile_left_column == ''.join(r[-1] for r in neighbor.tile)[::-1]:
+            neighbor.vertical_flip()
+            tile.left = neighbor.id
+            neighbor.right = tile.id
+        # map_neighbors(neighbor)
+    if tile.right is None:
+        tile_right_column = ''.join(r[-1] for r in grid)
+        # right = top
+        if tile_right_column == neighbor.tile[0]:
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.vertical_flip()
+            tile.right = neighbor.id
+            neighbor.left = tile.id
+        # right = bottom
+        elif tile_right_column == neighbor.tile[-1]:
+            neighbor.rotate()
+            tile.right = neighbor.id
+            neighbor.left = tile.id
+        # right = top flipped
+        elif tile_right_column == neighbor.tile[0][::-1]:
+            neighbor.rotate()
+            neighbor.vertical_flip()
+            tile.right = neighbor.id
+            neighbor.left = tile.id
+        # right = bottom flipped
+        elif tile_right_column == neighbor.tile[-1][::-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.rotate()
+            tile.right = neighbor.id
+            neighbor.left = tile.id
+        # right = left
+        elif tile_right_column == ''.join(r[0] for r in neighbor.tile):
+            tile.right = neighbor.id
+            neighbor.left = tile.id
+        # right = left flipped
+        elif tile_right_column == ''.join(r[0] for r in neighbor.tile)[::-1]:
+            neighbor.vertical_flip()
+            tile.right = neighbor.id
+            neighbor.left = tile.id            
+        # right = right
+        elif tile_right_column == ''.join(r[-1] for r in neighbor.tile):
+            neighbor.rotate()
+            neighbor.rotate()
+            neighbor.vertical_flip()
+            tile.right = neighbor.id
+            neighbor.left = tile.id
+        # right = right flipped
+        elif tile_right_column == ''.join(r[-1] for r in neighbor.tile)[::-1]:
+            neighbor.rotate()
+            neighbor.rotate()
+            tile.right = neighbor.id
+            neighbor.left = tile.id
+        map_neighbors(neighbor)
+    re_arranged_tiles.append(neighbor.id)
 
 
-for tile in camera_tiles:
-    mapped_tiles = []
-    map_neighbors(tile)
+# for tile in camera_tiles:
+    # mapped_tiles = []
+    # map_neighbors(tile)
 # mapped_tiles = []
 # for tile in camera_tiles[::-1]:
 #     map_neighbors(tile)
-# map_neighbors(camera_tiles[0])
+map_neighbors(camera_tiles[0])
+re_arranged_tiles = []
+map_neighbors(camera_tiles[0])
 
+for x in camera_tiles:
+    print(x.tile)
+    print(f'Top: {x.top}')
+    print(f'Right: {x.right}')
+    print(f'Bottom: {x.bottom}')
+    print(f'Left: {x.left}')
+    print('-------------')
 
-print([[x.top, x.right, x.bottom, x.left] for x in camera_tiles])
+print([sum(1 for _ in x.neighbors) for x in camera_tiles])
