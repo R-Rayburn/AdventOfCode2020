@@ -30,7 +30,7 @@ def read_commands(lines: list, directories: list, files_in_directories: dict):
             size, file_name = line.split(' ')
             if size != 'dir':
                 formatted_directories = ['/'.join(directories[0:i+1]).replace('//', '/') for i, _ in enumerate(directories)]
-                # print(formatted_directories)
+                print(formatted_directories)
                 for cd in formatted_directories:
                     files_in_directories.setdefault(cd, {})
                     files_in_directories[cd][file_name] = int(size)
@@ -57,13 +57,14 @@ def find_directory_to_remove(lines):
     files_in_directories = {}
     read_commands(lines, directories, files_in_directories)
     directory_sizes = [sum(v.values()) for _, v in files_in_directories.items()]
-    used_space = sum(files_in_directories['/'].values())
+    used_space = max(directory_sizes)
     unused_space = disc_space - used_space
     size_to_remove = needed_unused_space - unused_space
     removable_directories = [x for x in directory_sizes if x >= size_to_remove]
+    # print(min(removable_directories) + unused_space)
     directory_to_remove = min(removable_directories)
     return directory_to_remove
 
 print('  Part 2')
 print(f'    Test: {find_directory_to_remove(test_command_list)}')
-print(f'    Data: {find_directory_to_remove(command_list)}')  # 8395 is wrong
+print(f'    Data: {find_directory_to_remove(command_list)}')  # 8395 is LOW
