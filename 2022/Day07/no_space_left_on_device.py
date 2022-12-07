@@ -30,10 +30,10 @@ def read_commands(lines: list, directories: list, files_in_directories: dict):
             size, file_name = line.split(' ')
             if size != 'dir':
                 formatted_directories = ['/'.join(directories[0:i+1]).replace('//', '/') for i, _ in enumerate(directories)]
-                print(formatted_directories)
                 for cd in formatted_directories:
                     files_in_directories.setdefault(cd, {})
-                    files_in_directories[cd][file_name] = int(size)
+                    print(files_in_directories[cd])
+                    files_in_directories[cd][cd+file_name] = int(size)
 
 
 def find_removable_file_size(lines, at_most=100000):
@@ -50,21 +50,59 @@ print(f'    Test: {find_removable_file_size(test_command_list)}')
 print(f'    Data: {find_removable_file_size(command_list)}')
 
 
+def execute_commands(lines: list):
+    key_path = []
+    directories = {}
+    for line in lines:
+        temp_dict = directories
+        for key in key_path:
+            temp_dict = temp_dict[key]
+        if is_command(line):
+            _, *info = line.split(' ')
+            if info[0] == 'cd':
+                if info[1] == '..':
+                    key_path.pop()
+                else:
+                    key_path.append(info[1])
+                    if info[1] not in temp_dict.keys():
+                       temp_dict[info[1]] = {}
+        else:
+            size, file_name = line.split(' ')
+            if size == 'dir':
+                temp_dict[file_name] = {}
+            else:
+                temp_dict[file_name] = int(size)
+    return directories
+
+
+def sum_dict_values(d):
+    total_values = {}
+    temp_d = d
+    for key in d:
+        pass
+
+
+print(execute_commands(test_command_list))
+print(execute_commands(command_list))
+
 def find_directory_to_remove(lines):
     disc_space = 70000000
     needed_unused_space = 30000000
     directories = []
     files_in_directories = {}
     read_commands(lines, directories, files_in_directories)
-    directory_sizes = [sum(v.values()) for _, v in files_in_directories.items()]
-    used_space = max(directory_sizes)
+    directory_sizes = {k:sum(v.values()) for k, v in files_in_directories.items()}
+    print(directory_sizes)
+    used_space = max(directory_sizes.values())
+    print([key for key, value in directory_sizes.items() if value == used_space])
     unused_space = disc_space - used_space
     size_to_remove = needed_unused_space - unused_space
-    removable_directories = [x for x in directory_sizes if x >= size_to_remove]
+    print(f'Size to remove is {size_to_remove}')
+    removable_directories = [x for x in directory_sizes.values() if x >= size_to_remove]
     # print(min(removable_directories) + unused_space)
     directory_to_remove = min(removable_directories)
     return directory_to_remove
 
 print('  Part 2')
-print(f'    Test: {find_directory_to_remove(test_command_list)}')
-print(f'    Data: {find_directory_to_remove(command_list)}')  # 8395 is LOW
+# print(f'    Test: {find_directory_to_remove(test_command_list)}')
+# print(f'    Data: {find_directory_to_remove(command_list)}')  # 8395 is LOW
