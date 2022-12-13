@@ -69,21 +69,38 @@ def execute_commands(lines: list):
         else:
             size, file_name = line.split(' ')
             if size == 'dir':
-                temp_dict[file_name] = {}
+                temp_dict[file_name] = {'SIZE': 0}
             else:
+                if file_name not in temp_dict.keys():
+                    temp_dict.setdefault('SIZE', 0)
+                    temp_dict['SIZE'] += int(size)
                 temp_dict[file_name] = int(size)
     return directories
 
+TOTAL_VALUES = []
 
-def sum_dict_values(d):
-    total_values = {}
-    temp_d = d
-    for key in d:
-        pass
+def sum_dict_values(d: dict):
+    # temp_d = d
+    # total = 0
+    for _, value in d.items():
+        if type(value) is dict:
+            # d.setdefault('SIZE', 0)
+            d['SIZE'] += sum_dict_values(value)
+    # if total >= size_to_remove:
+    # TOTAL_VALUES.append(total)
+    return d['SIZE']
+
+  
+def get_sizes(d):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            yield from get_sizes(v)
+        elif k == 'SIZE':
+            yield v
 
 
-print(execute_commands(test_command_list))
-print(execute_commands(command_list))
+# print(execute_commands(test_command_list))
+# print(execute_commands(command_list))
 
 def find_directory_to_remove(lines):
     disc_space = 70000000
@@ -103,6 +120,20 @@ def find_directory_to_remove(lines):
     directory_to_remove = min(removable_directories)
     return directory_to_remove
 
+
+def find_size_v2(lines):
+    disc_space = 70000000
+    needed_unused_space = 30000000
+    directories = execute_commands(lines)
+    print(directories)
+    used_space = sum_dict_values(directories['/'])
+    unused_space = disc_space - used_space
+    size_to_remove = needed_unused_space - unused_space
+    # print(directories)
+    directory_to_remove = min([x for x in get_sizes(directories['/']) if x >= size_to_remove])
+    return directory_to_remove
+
+
 print('  Part 2')
-# print(f'    Test: {find_directory_to_remove(test_command_list)}')
-# print(f'    Data: {find_directory_to_remove(command_list)}')  # 8395 is LOW
+print(f'    Test: {find_size_v2(test_command_list)}')
+print(f'    Data: {find_size_v2(command_list)}')  # 8395 is LOW
